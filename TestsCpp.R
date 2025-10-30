@@ -69,7 +69,6 @@ test_that("C++ vs R", {
 })
 
 
-
 #Example 2: Lambda = 0 
 n <- 25; p <- 8
 X <- matrix(rnorm(n * p), n, p)
@@ -107,6 +106,30 @@ test_that("High-dimensional case: C++ vs R", {
 
 # Do microbenchmark on fitLASSOstandardized vs fitLASSOstandardized_c
 ######################################################################
+
+library(microbenchmark)
+
+set.seed(20)
+n <- 100
+p <- 20
+X <- matrix(rnorm(n*p), n, p)
+Y <- rnorm(n)
+
+# Standardize
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+beta_start <- rep(0, p)
+lambda <- 0.1
+
+# Run microbenchmark
+mbm <- microbenchmark(
+  R_version = fitLASSOstandardized(Xtilde, Ytilde, lambda, beta_start, eps = 1e-6),
+  Cpp_version = fitLASSOstandardized_c(Xtilde, Ytilde, lambda, beta_start, eps = 1e-6),
+  times = 50L
+)
+
+print(mbm)
 
 # Do at least 2 tests for fitLASSOstandardized_seq function below. You are checking output agreements on at least 2 separate inputs
 #################################################
