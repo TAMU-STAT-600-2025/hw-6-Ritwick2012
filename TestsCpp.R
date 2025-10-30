@@ -198,7 +198,6 @@ p <- 20
 X <- matrix(rnorm(n*p), n, p)
 Y <- rnorm(n)
 
-
 # Standardize
 std <- standardizeXY(X, Y)
 Xtilde <- std$Xtilde
@@ -237,4 +236,4 @@ microbenchmark(
   times = 10
 )
 
-
+##70 times faster the corresponding R version
