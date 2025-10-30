@@ -108,7 +108,6 @@ test_that("High-dimensional case: C++ vs R", {
 ######################################################################
 
 library(microbenchmark)
-
 set.seed(20)
 n <- 100
 p <- 20
@@ -133,6 +132,63 @@ print(mbm)
 
 # Do at least 2 tests for fitLASSOstandardized_seq function below. You are checking output agreements on at least 2 separate inputs
 #################################################
+
+# Example 1 Simple case (n > p)
+n <- 20; p <- 5
+X <- matrix(rnorm(n * p), n, p)
+Y <- rnorm(n)
+
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+
+lambda_seq <- c(0.5, 0.1, 0.05)
+
+beta_r <- fitLASSOstandardized_seq(Xtilde, Ytilde, lambda_seq)$beta_mat
+beta_c <- fitLASSOstandardized_seq_c(Xtilde, Ytilde, lambda_seq)
+
+test_that("n > p: C++ vs R sequence", {
+  expect_equal(beta_r, beta_c)
+})
+
+
+
+# Example 2: High-dimensional p > n
+n <- 10; p <- 15
+X <- matrix(rnorm(n * p), n, p)
+Y <- rnorm(n)
+
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+
+lambda_seq <- c(0.2, 0.1, 0.05)
+
+beta_r <- fitLASSOstandardized_seq(Xtilde, Ytilde, lambda_seq)$beta_mat
+beta_c <- fitLASSOstandardized_seq_c(Xtilde, Ytilde, lambda_seq)
+
+test_that("High-dimensional p > n: C++ vs R sequence", {
+  expect_equal(beta_r, beta_c, tolerance = 1e-3)
+})
+
+
+# Example 3: Highly correlated predictors
+n <- 30; p <- 10
+base <- rnorm(n)
+X <- matrix(0, n, p)
+for (j in 1:p) X[, j] <- base + rnorm(n, sd = 0.01)  # highly correlated
+Y <- rnorm(n)
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+lambda_seq <- c(0.2, 0.1)
+
+beta_r3 <- fitLASSOstandardized_seq(Xtilde, Ytilde, lambda_seq)$beta_mat
+beta_c3 <- fitLASSOstandardized_seq_c(Xtilde, Ytilde, lambda_seq)
+
+test_that("fitLASSOstandardized_seq: highly correlated predictors", {
+  expect_equal(beta_r3, beta_c3)
+})
 
 # Do microbenchmark on fitLASSOstandardized_seq vs fitLASSOstandardized_seq_c
 ######################################################################
