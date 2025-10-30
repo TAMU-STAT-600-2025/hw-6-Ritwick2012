@@ -152,7 +152,6 @@ test_that("n > p: C++ vs R sequence", {
 })
 
 
-
 # Example 2: High-dimensional p > n
 n <- 10; p <- 15
 X <- matrix(rnorm(n * p), n, p)
@@ -192,6 +191,30 @@ test_that("fitLASSOstandardized_seq: highly correlated predictors", {
 
 # Do microbenchmark on fitLASSOstandardized_seq vs fitLASSOstandardized_seq_c
 ######################################################################
+
+# Generate example data
+n <- 100
+p <- 20
+X <- matrix(rnorm(n*p), n, p)
+Y <- rnorm(n)
+
+
+# Standardize
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+
+# Define lambda sequence
+lambda_seq <- seq(0.5, 0.01, length.out = 10)
+
+# Run microbenchmark
+mbm_seq <- microbenchmark(
+  R_version_seq = fitLASSOstandardized_seq(Xtilde, Ytilde, lambda_seq, eps = 1e-6),
+  Cpp_version_seq = fitLASSOstandardized_seq_c(Xtilde, Ytilde, lambda_seq, eps = 1e-6),
+  times = 50L
+)
+
+print(mbm_seq)
 
 # Tests on riboflavin data
 ##########################
