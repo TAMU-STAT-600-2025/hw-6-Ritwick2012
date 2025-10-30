@@ -9,9 +9,25 @@ sourceCpp("LassoInC.cpp")
 # Source your LASSO functions from HW4 (make sure to move the corresponding .R file in the current project folder)
 source("LassoFunctions.R")
 
+library(testthat)
+set.seed(123)
+
 # Do at least 2 tests for soft-thresholding function below. You are checking output agreements on at least 2 separate inputs
 #################################################
 
+test_that("soft thresholding C++ vs R", {
+  # Input 1
+  a1 <- 2.5
+  lambda1 <- 1
+  expect_equal(soft(a1, lambda1), soft_c(a1, lambda1))
+  
+  
+  
+  # Input 2
+  a2 <- -0.8
+  lambda2 <- 0.5
+  expect_equal(soft(a2, lambda2), soft_c(a2, lambda2))
+})
 
 # Do at least 2 tests for lasso objective function below. You are checking output agreements on at least 2 separate inputs
 #################################################
@@ -49,3 +65,5 @@ microbenchmark(
   fitLASSOstandardized_seq_c(out$Xtilde, out$Ytilde, outl$lambda_seq),
   times = 10
 )
+
+
