@@ -42,7 +42,6 @@ test_that("lasso objective C++ vs R", {
   expect_equal(lasso(X, Y, beta1, lambda1), lasso_c(X, Y, beta1, lambda1))
   
   
-  
   # Input 2
   beta2 <- c(0.9, 0.1, 4)
   lambda2 <- 0.8
@@ -51,6 +50,60 @@ test_that("lasso objective C++ vs R", {
 
 # Do at least 2 tests for fitLASSOstandardized function below. You are checking output agreements on at least 2 separate inputs
 #################################################
+
+#Example 1 Simple case (n > p, small lambda)
+n <- 20; p <- 5
+X <- matrix(rnorm(n * p), n, p)
+Y <- rnorm(n)
+
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+lambda <- 0.1
+
+beta_r <- fitLASSOstandardized(Xtilde, Ytilde, lambda)$beta
+beta_c <- fitLASSOstandardized_c(Xtilde, Ytilde, lambda, rep(0, p))
+
+test_that("C++ vs R", {
+  expect_equal(beta_r,as.vector(beta_c))
+})
+
+
+
+#Example 2: Lambda = 0 
+n <- 25; p <- 8
+X <- matrix(rnorm(n * p), n, p)
+Y <- rnorm(n)
+
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+lambda <- 0
+
+beta_r <- fitLASSOstandardized(Xtilde, Ytilde, lambda)$beta
+beta_c <- fitLASSOstandardized_c(Xtilde, Ytilde, lambda, rep(0, p))
+
+test_that("OLS case (lambda = 0): C++ vs R", {
+  expect_equal(beta_r, as.vector(beta_c))
+})
+
+
+#Example 3: High-dimensional case (p>n)
+n <- 10; p <- 15
+X <- matrix(rnorm(n * p), n, p)
+Y <- rnorm(n)
+
+std <- standardizeXY(X, Y)
+Xtilde <- std$Xtilde
+Ytilde <- std$Ytilde
+lambda <- 0.05
+
+beta_r <- fitLASSOstandardized(Xtilde, Ytilde, lambda)$beta
+beta_c <- fitLASSOstandardized_c(Xtilde, Ytilde, lambda, rep(0, p))
+
+test_that("High-dimensional case: C++ vs R", {
+  expect_equal(beta_r, as.vector(beta_c))
+})
 
 # Do microbenchmark on fitLASSOstandardized vs fitLASSOstandardized_c
 ######################################################################
