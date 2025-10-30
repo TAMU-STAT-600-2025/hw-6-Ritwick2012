@@ -22,7 +22,6 @@ test_that("soft thresholding C++ vs R", {
   expect_equal(soft(a1, lambda1), soft_c(a1, lambda1))
   
   
-  
   # Input 2
   a2 <- -0.8
   lambda2 <- 0.5
@@ -32,6 +31,23 @@ test_that("soft thresholding C++ vs R", {
 # Do at least 2 tests for lasso objective function below. You are checking output agreements on at least 2 separate inputs
 #################################################
 
+test_that("lasso objective C++ vs R", {
+  # Generate data
+  X <- matrix(rnorm(10 * 3), 10, 3)
+  Y <- rnorm(10)
+  
+  # Input 1
+  beta1 <- c(0.5, -0.2, 0)
+  lambda1 <- 0.3
+  expect_equal(lasso(X, Y, beta1, lambda1), lasso_c(X, Y, beta1, lambda1))
+  
+  
+  
+  # Input 2
+  beta2 <- c(0.9, 0.1, 4)
+  lambda2 <- 0.8
+  expect_equal(lasso(X, Y, beta2, lambda2), lasso_c(X, Y, beta2, lambda2))
+})
 
 # Do at least 2 tests for fitLASSOstandardized function below. You are checking output agreements on at least 2 separate inputs
 #################################################
